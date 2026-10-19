@@ -1,0 +1,6 @@
+{
+  "name": "Thiệp Chúc Mừng 20/10 - Ngày Phụ Nữ Việt Nam",
+  "description": "Trang web thiệp chúc mừng Ngày Phụ nữ Việt Nam 20/10 với hiệu ứng cánh hoa rơi lãng mạn, phong thư tương tác mở ra kèm lá thư đong đầy cảm xúc.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
