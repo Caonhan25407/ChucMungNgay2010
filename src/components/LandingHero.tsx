@@ -25,7 +25,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ onOpenCard }) => {
         {/* Top soft subtitle ornament (Preserved user's custom text) */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-100/70 border border-rose-200/90 text-rose-700 text-xs sm:text-sm font-script tracking-wider mb-4 shadow-xs">
           
-          <span>Liên Chi hội Khoa mạng máy tính & Truyền thông</span>
+          <span>Liên Chi hội Khoa Mạng máy tính & Truyền thông</span>
           
         </div>
 
