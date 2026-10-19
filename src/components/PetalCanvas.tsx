@@ -1,5 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { Petal, createRandomPetal, updatePetalPosition, calculateWindFromPointer } from '../utils/petalPhysics';
+import {
+  PETAL_COLORS,
+  Petal,
+  calculateWindFromPointer,
+  createRandomPetal,
+  updatePetalPosition,
+} from '../utils/petalPhysics';
 
 interface PetalCanvasProps {
   petalDensity?: 'low' | 'medium' | 'high';
@@ -24,6 +30,8 @@ export const PetalCanvas: React.FC<PetalCanvasProps> = ({ petalDensity = 'medium
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -39,17 +47,20 @@ export const PetalCanvas: React.FC<PetalCanvasProps> = ({ petalDensity = 'medium
     window.addEventListener('resize', handleResize);
 
     // Initialize petals across the screen
-    petalsRef.current = Array.from({ length: count }, () =>
-      createRandomPetal(width, height)
+    petalsRef.current = Array.from({ length: count }, (_, index) =>
+      createRandomPetal(index, width, height, false)
     );
 
     // Track mouse/touch for interactive breeze
     const handlePointerMove = (e: MouseEvent | TouchEvent) => {
       const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-      const deltaX = clientX - pointerPosRef.current.x;
-
-      windVelocityRef.current = calculateWindFromPointer(deltaX);
+      windVelocityRef.current = calculateWindFromPointer(
+        clientX,
+        clientY,
+        pointerPosRef.current.x,
+        width
+      );
       pointerPosRef.current = { x: clientX, y: clientY };
     };
 
@@ -65,21 +76,28 @@ export const PetalCanvas: React.FC<PetalCanvasProps> = ({ petalDensity = 'medium
 
       const currentPetals = petalsRef.current;
       for (let i = 0; i < currentPetals.length; i++) {
-        const petal = currentPetals[i];
-        updatePetalPosition(petal, width, height, windVelocityRef.current);
+        const petal = updatePetalPosition(
+          currentPetals[i],
+          width,
+          height,
+          windVelocityRef.current
+        );
+        currentPetals[i] = petal;
+        const colors = PETAL_COLORS[petal.colorType];
 
         ctx.save();
+        ctx.globalAlpha = petal.opacity;
         ctx.translate(petal.x, petal.y);
-        ctx.rotate(petal.rotation);
+        ctx.rotate((petal.rotation * Math.PI) / 180);
 
         // 3D perspective squish based on oscillation
-        const scaleX = Math.cos(petal.phase);
+        const scaleX = Math.cos((petal.flip * Math.PI) / 180);
         ctx.scale(scaleX, 1);
 
         // Draw organic curved petal
         ctx.beginPath();
-        ctx.fillStyle = petal.color;
-        ctx.shadowColor = 'rgba(244, 63, 94, 0.25)';
+        ctx.fillStyle = colors.primary;
+        ctx.shadowColor = colors.shadow;
         ctx.shadowBlur = 6;
 
         ctx.moveTo(0, 0);
@@ -104,7 +122,7 @@ export const PetalCanvas: React.FC<PetalCanvasProps> = ({ petalDensity = 'medium
 
         // Delicate inner vein highlight for realism
         ctx.beginPath();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+        ctx.strokeStyle = colors.highlight;
         ctx.lineWidth = 1;
         ctx.moveTo(0, 0);
         ctx.quadraticCurveTo(
@@ -136,7 +154,7 @@ export const PetalCanvas: React.FC<PetalCanvasProps> = ({ petalDensity = 'medium
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-[60] select-none"
+      className="pointer-events-none fixed inset-0 z-10 select-none"
       aria-hidden="true"
     />
   );

@@ -8,7 +8,7 @@ interface LandingHeroProps {
 
 export const LandingHero: React.FC<LandingHeroProps> = ({ onOpenCard }) => {
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-6 overflow-hidden">
+    <div className="relative flex w-full flex-1 items-center justify-center overflow-hidden p-4 sm:p-6">
       {/* Background floral image */}
       <div className="absolute inset-0 z-0">
         <img
@@ -30,14 +30,18 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ onOpenCard }) => {
         </div>
 
         {/* Delicate & Soft Typography */}
-        <div className="space-y-1 mb-2">
-          <h2 className="font-script text-3xl sm:text-4xl md:text-5xl text-rose-800/90 tracking-wide font-normal">
+        <h1
+          data-view-focus="landing"
+          tabIndex={-1}
+          className="mb-2 space-y-1 focus:outline-none"
+        >
+          <span className="font-script block text-3xl font-normal tracking-wide text-rose-800/90 sm:text-4xl md:text-5xl">
             Chúc Mừng Ngày
-          </h2>
-          <h1 className="font-serif-display italic font-semibold text-4xl sm:text-5xl md:text-6xl text-rose-600 tracking-tight leading-tight py-1">
+          </span>
+          <span className="font-serif-display block py-1 text-4xl font-semibold italic leading-tight tracking-tight text-rose-700 sm:text-5xl md:text-6xl">
             Phụ Nữ Việt Nam
-          </h1>
-        </div>
+          </span>
+        </h1>
 
         {/* Calligraphic 20/10 date */}
         <div className="relative my-2 select-none">
@@ -62,7 +66,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ onOpenCard }) => {
 
           <button
             onClick={onOpenCard}
-            className="relative flex items-center justify-center gap-3.5 px-8 sm:px-11 py-4 sm:py-4.5 rounded-full bg-gradient-to-r from-rose-500 via-pink-500 to-rose-400 hover:from-rose-600 hover:via-pink-600 hover:to-rose-500 text-white font-semibold text-base sm:text-lg shadow-xl shadow-rose-400/30 border border-white/50 transition-all duration-300 transform group-hover:-translate-y-1 active:translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-rose-200 cursor-pointer"
+            className="relative flex items-center justify-center gap-3.5 rounded-full border border-white/50 bg-gradient-to-r from-rose-700 via-pink-700 to-rose-600 px-8 py-4 text-base font-semibold text-white shadow-xl shadow-rose-400/30 transition-all duration-300 group-hover:-translate-y-1 hover:from-rose-800 hover:via-pink-800 hover:to-rose-700 active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-rose-700 focus-visible:ring-offset-2 sm:px-11 sm:py-4.5 sm:text-lg"
             aria-label="Mở bìa thư chúc mừng"
           >
             {/* Elegant Mail Icon */}
@@ -79,7 +83,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ onOpenCard }) => {
         </div>
 
         {/* Gentle Hint */}
-        <p className="mt-4 text-xs text-rose-800/70 font-sans flex items-center justify-center gap-1.5">
+        <p className="mt-4 flex items-center justify-center gap-1.5 font-sans text-xs text-rose-900/85">
           <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-400" />
           <span>Chạm vào để mở phong thư và đón nhận yêu thương</span>
         </p>

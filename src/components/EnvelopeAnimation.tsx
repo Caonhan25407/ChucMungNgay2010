@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Sparkles, Heart } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -9,9 +9,30 @@ interface EnvelopeAnimationProps {
 
 export const EnvelopeAnimation: React.FC<EnvelopeAnimationProps> = ({ onOpened, onCancel }) => {
   const [isOpenStage, setIsOpenStage] = useState<'sealed' | 'unsealing' | 'opening' | 'letter-rising' | 'done'>('sealed');
+  const hasStartedOpening = useRef(false);
+  const timersRef = useRef<number[]>([]);
+
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach((timerId) => window.clearTimeout(timerId));
+      timersRef.current = [];
+    };
+  }, []);
+
+  const scheduleStage = (callback: () => void, delay: number) => {
+    const timerId = window.setTimeout(callback, delay);
+    timersRef.current.push(timerId);
+  };
 
   const handleOpen = () => {
-    if (isOpenStage !== 'sealed') return;
+    if (isOpenStage !== 'sealed' || hasStartedOpening.current) return;
+    hasStartedOpening.current = true;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setIsOpenStage('done');
+      onOpened();
+      return;
+    }
 
     // Trigger gentle floral confetti
     confetti({
@@ -23,40 +44,55 @@ export const EnvelopeAnimation: React.FC<EnvelopeAnimationProps> = ({ onOpened, 
 
     setIsOpenStage('unsealing');
 
-    setTimeout(() => {
+    scheduleStage(() => {
       setIsOpenStage('opening');
     }, 450);
 
-    setTimeout(() => {
+    scheduleStage(() => {
       setIsOpenStage('letter-rising');
     }, 1100);
 
-    setTimeout(() => {
+    scheduleStage(() => {
       setIsOpenStage('done');
       onOpened();
     }, 1900);
   };
 
+  const handleCancel = () => {
+    if (!onCancel || isOpenStage !== 'sealed') return;
+
+    timersRef.current.forEach((timerId) => window.clearTimeout(timerId));
+    timersRef.current = [];
+    hasStartedOpening.current = false;
+    onCancel();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gradient-to-b from-rose-100/90 via-pink-100/85 to-rose-200/90 backdrop-blur-md transition-opacity duration-500 animate-fadeIn">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-b from-rose-100/90 via-pink-100/85 to-rose-200/90 p-4 backdrop-blur-md transition-opacity duration-500 animate-fadeIn"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="envelope-title"
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          handleCancel();
+        }
+      }}
+    >
       {/* Soft ambient blurs */}
       <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-pink-300/30 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-rose-300/30 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative w-full max-w-md flex flex-col items-center z-10">
+      <div className="envelope-animation-panel relative z-10 flex w-full max-w-md flex-col items-center">
         {/* Envelope Container (Bìa thư màu hồng nhạt, đóng kín 100% không để khoảng hở) */}
-        <div
-          className="relative w-80 sm:w-96 h-56 sm:h-64 cursor-pointer select-none group perspective-1000"
+        <button
+          type="button"
+          data-view-focus="animating_envelope"
+          className="group perspective-1000 relative h-56 w-80 cursor-pointer select-none rounded-2xl border-0 bg-transparent p-0 text-left focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-rose-700 focus-visible:ring-offset-4 focus-visible:ring-offset-rose-100 sm:h-64 sm:w-96"
           onClick={handleOpen}
-          role="button"
-          tabIndex={0}
           aria-label="Nhấn để mở phong thư chúc mừng"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              handleOpen();
-            }
-          }}
+          aria-describedby="envelope-title"
         >
           {/* Back pocket & shadow (Màu hồng nhạt pastel ngọt ngào) */}
           <div className="absolute inset-0 bg-gradient-to-br from-pink-200 via-rose-200 to-pink-300 rounded-2xl shadow-[0_20px_45px_-10px_rgba(244,114,182,0.35)] border-2 border-pink-300/80 overflow-hidden transform transition-transform group-hover:scale-[1.02] duration-300">
@@ -68,12 +104,12 @@ export const EnvelopeAnimation: React.FC<EnvelopeAnimationProps> = ({ onOpened, 
 
           {/* Letter Peeking / Rising Out */}
           <div
-            className={`absolute left-5 right-5 h-52 bg-[#fffdfa] rounded-xl shadow-xl border-2 border-[#e6d3ba] p-5 flex flex-col justify-between transition-all duration-1000 ease-out ${
+            className={`absolute left-5 right-5 top-3 flex h-52 flex-col justify-between rounded-xl border-2 border-[#e6d3ba] bg-[#fffdfa] p-5 shadow-xl transition-all duration-1000 ease-out ${
               isOpenStage === 'letter-rising' || isOpenStage === 'done'
-                ? '-translate-y-40 z-30 scale-105 shadow-2xl'
+                ? 'envelope-letter-rising z-30 shadow-2xl'
                 : isOpenStage === 'opening'
-                ? '-translate-y-12 z-10'
-                : 'top-3 z-0'
+                ? 'envelope-letter-opening z-10'
+                : 'z-0'
             }`}
           >
             <div className="flex items-center justify-between border-b border-rose-200/80 pb-2">
@@ -174,21 +210,22 @@ export const EnvelopeAnimation: React.FC<EnvelopeAnimationProps> = ({ onOpened, 
               </div>
             </div>
           )}
-        </div>
+        </button>
 
         {/* Text prompt below envelope (Màu chữ hồng đậm nét rõ trên nền hồng nhạt) */}
-        <div className="mt-8 text-center space-y-2">
-          <p className="text-rose-900 text-base font-semibold drop-shadow-xs flex items-center justify-center gap-2">
+        <div className="envelope-prompt mt-8 space-y-2 text-center">
+          <h1 id="envelope-title" className="flex items-center justify-center gap-2 text-base font-semibold text-rose-950 drop-shadow-xs">
             <Sparkles className="w-4 h-4 text-rose-500 animate-spin" style={{ animationDuration: '4s' }} />
             {isOpenStage === 'sealed'
               ? 'Chạm vào phong thư để mở ra lời chúc...'
               : 'Đang mở bức thư đong đầy cảm xúc...'}
-          </p>
+          </h1>
 
-          {onCancel && (
+          {onCancel && isOpenStage === 'sealed' && (
             <button
-              onClick={onCancel}
-              className="text-xs text-rose-700 hover:text-rose-950 underline underline-offset-4 font-medium transition-colors cursor-pointer"
+              type="button"
+              onClick={handleCancel}
+              className="inline-flex min-h-11 items-center rounded-full px-4 py-2 text-xs font-medium text-rose-800 underline underline-offset-4 transition-colors hover:bg-white/50 hover:text-rose-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-700 focus-visible:ring-offset-2"
             >
               Quay lại trang chính
             </button>
