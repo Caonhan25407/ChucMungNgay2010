@@ -10,9 +10,11 @@ interface LetterCardProps {
 export const LetterCard: React.FC<LetterCardProps> = ({ onReopenEnvelope }) => {
   // Rich, longer, heartfelt message for 20/10 with multiple warm paragraphs
   const paragraphs = [
-    'Nhân ngày Phụ Nữ Việt Nam 20/10, xin gửi trọn vẹn những lời chúc tốt đẹp, bình yên và ngọt ngào nhất đến một nửa thế giới tuyệt vời!',
-    'Cảm ơn bạn vì đã luôn hiện diện với tất cả sự dịu dàng, nụ cười tỏa nắng và tấm lòng ấm áp bao dung. Dù là người bà, người mẹ, người vợ, cô giáo hay người chị, người em bè bạn — bạn đều là đóa hoa rạng ngời và quý giá nhất của cuộc đời.',
-    'Chúc bạn luôn dồi dào sức khỏe, luôn tự tin tỏa sáng theo cách riêng của mình, mỗi ngày trôi qua đều ngập tràn niềm vui, được yêu thương và nâng niu trọn vẹn!'
+    'Nhân ngày Phụ nữ Việt Nam 20/10, thay mặt tập thể Liên Chi hội, mình xin gửi đến các bạn những lời chúc tốt đẹp nhất!',
+    'Chúc các bạn luôn rạng rỡ, vui vẻ, tràn đầy năng lượng và gặt hái được nhiều thành công trong học tập cũng như trong các hoạt động phong trào. Cảm ơn các bạn đã luôn là những mảnh ghép tuyệt vời, mang đến sự nhiệt huyết và đóng góp rất nhiều cho sự phát triển chung của tập thể.',
+    'Đặc biệt, chúng mình còn chuẩn bị một phần quà nho nhỏ dành tặng tất cả các bạn. Bạn hãy ghé thư viện A vào ngày mai (20/10) để nhận “bất ngờ đặc biệt” mà các bạn nam Liên Chi hội đã chuẩn bị nhé!',
+    'Một lần nữa, chúc các bạn có một ngày 20/10 thật ý nghĩa, trọn vẹn và nhận được thật nhiều niềm vui!',
+    'Thân mến./.'
   ];
 
   const handleBurstFlower = () => {
